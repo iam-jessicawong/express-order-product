@@ -1,7 +1,8 @@
 const findALl = async (req, res) => {
   try {
     const categories = await req.context.models.product_category.findAll({
-      include: [{ model: req.context.models.products, as: "products" }]
+      include: [{ model: req.context.models.products, as: "products" }],
+      order: ["id"]
     }) ;
     return res.send(categories)
   } catch (error) {

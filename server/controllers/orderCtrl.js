@@ -2,18 +2,27 @@ const findAll = async (req, res) => {
   try {
     const orders = await req.context.models.orders.findAll({
       where: { user_id: req.user._id },
-      include: {
-        model: req.context.models.users,
-        as: "user",
-        include: {
-          model: req.context.models.customers,
-          as: "customers"
+      include: [
+        {
+          model: req.context.models.order_detail,
+          as: "order_details",
+          include: {
+            model: req.context.models.products,
+            as: "product",
+            attributes: ["name", "price"]
+          }
         },
-      },
-      include: [{
-        model: req.context.models.order_detail,
-        as: "order_details"
-      }],
+        {
+          model: req.context.models.users,
+          as: "user",
+          include: {
+            model: req.context.models.customers,
+            as: "customers",
+            attributes: ["firstname", "lastname"],
+          },
+          attributes: ["username"],
+        }
+      ],
     });
 
     return res.send(orders);
@@ -37,7 +46,7 @@ const create = async (req, res) => {
 
     let order = await req.context.models.orders.findOne({ where: { user_id: req.user._id } });
     
-    const total_price = qty * product.price;
+    const total_price = qty * parseFloat(product.price);
 
     if (!order) {
       order = await req.context.models.orders.create({
@@ -46,8 +55,8 @@ const create = async (req, res) => {
         total_price: total_price
       });
     } else {
-      order.total_product += qty;
-      order.total_price += total_price;
+      order.total_product = parseFloat(order.total_product) + qty;
+      order.total_price = parseFloat(order.total_price) + total_price;
       await order.save();
     }
 
