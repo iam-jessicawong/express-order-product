@@ -7,5 +7,6 @@ const router = Router();
 router.get("/", indexCtrl.productCtrl.findAll);
 router.get("/:id", indexCtrl.productCtrl.findOne);
 router.post("/", middleware.upload, indexCtrl.productCtrl.create);
+router.put("/:id", indexCtrl.productCtrl.update);
 
 export default router;

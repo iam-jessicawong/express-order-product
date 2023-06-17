@@ -63,8 +63,32 @@ const create = async (req, res) => {
   }
 };
 
+const update = async (req, res) => {
+  const { id } = req.params;
+  const { qty } = req.body;
+
+  if ( !qty || isNaN(qty) ) return res.status(400).send("quantity must be a number");
+
+  try {
+    const product = await req.context.models.products.update(
+      {
+        qty: parseInt(qty),
+      },
+      { where: { id: id } }
+    );
+
+    if (product[0] < 1) return res.status(404).send(`product id ${id} is not exist`);
+
+    return res.send(`product quantity updated`);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error.message);
+  }
+};
+
 export default {
   findAll,
   findOne,
-  create
+  create,
+  update
 };
